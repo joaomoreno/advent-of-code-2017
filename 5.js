@@ -6,7 +6,8 @@ function stepsUntilExit(instructions) {
 
 	while (pc >= 0 && pc < instructions.length) {
 		const oldPc = pc;
-		pc += instructions[pc]++;
+		pc += instructions[pc];
+		instructions[oldPc] += instructions[oldPc] >= 3 ? -1 : 1;
 		steps++;
 	}
 
