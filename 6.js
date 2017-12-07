@@ -19,6 +19,7 @@ function maxIndex(banks) {
 }
 
 function stepsUntilLoop(banks) {
+	let didFind = false;
 	const set = new Set();
 	let count = 0;
 
@@ -26,7 +27,13 @@ function stepsUntilLoop(banks) {
 		const hash = hashBanks(banks);
 
 		if (set.has(hash)) {
-			return count;
+			if (didFind) {
+				return count;
+			} else {
+				set.clear();
+				count = 0;
+				didFind = true;
+			}
 		}
 
 		set.add(hash);
