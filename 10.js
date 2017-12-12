@@ -68,14 +68,17 @@ Treating your puzzle input as a string of ASCII characters, what is the Knot Has
 
 const readline = require('readline');
 
+function pad(str, length) {
+	return Array(length - str.length).fill('0') + str;
+}
+
 function reverse(list, pos, length) {
 	for (let i = 0; i < length / 2; i++) {
 		let from = (pos + i) % list.length;
 		let to = (pos + length - i - 1) % list.length;
-
-		list[from] = list[from] ^ list[to];
-		list[to] = list[from] ^ list[to];
-		list[from] = list[from] ^ list[to];
+		let value = list[from];
+		list[from] = list[to];
+		list[to] = value;
 	}
 }
 
@@ -83,21 +86,34 @@ function hash(lengths, length = 256) {
 	const list = Array(length).fill(0).map((_, i) => i);
 	let pos = 0, skip = 0;
 
-	for (const length of lengths) {
-		reverse(list, pos, length);
-		pos += (length + skip) % list.length;
-		skip++;
+	for (let i = 0; i < 64; i++) {
+		for (const length of lengths) {
+			reverse(list, pos, length);
+			pos += (length + skip) % list.length;
+			skip++;
+		}
 	}
 
-	return list[0] * list[1];
+	let hash = '';
+	for (let i = 0; i < 16; i++) {
+		let value = 0;
+
+		for (let j = 0; j < 16; j++) {
+			value = value ^ list[(i * 16) + j];
+		}
+
+		hash += pad(value.toString(16), 2);
+	}
+
+	return hash;
 }
 
 function main() {
 	const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 	let lengths;
 
-	rl.on('line', line => lengths = line.split(',').map(v => parseInt(v)));
-	rl.on('close', () => console.log(hash(lengths)));
+	rl.on('line', line => lengths = line.split('').map(c => c.charCodeAt(0)));
+	rl.on('close', () => console.log(hash([...lengths, 17, 31, 73, 47, 23])));
 }
 
 main();
